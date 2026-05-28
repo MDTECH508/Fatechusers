@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Bestploy | Deploy HTML/JS — Free GPU & 1GB Space</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #050508;
+      color: #eef2ff;
+      overflow-x: hidden;
+    }
+
+    /* 3D canvas background style */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      display: block;
+    }
+
+    .gradient-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 30% 20%, rgba(0,0,0,0.5), rgba(3,5,12,0.92));
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      position: relative;
+    }
+
+    /* glass navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: rgba(10, 12, 18, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(90, 100, 120, 0.4);
+      border-radius: 2rem;
+      padding: 0.8rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .logo h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #8aaec0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .logo span {
+      font-size: 0.75rem;
+      color: #8e9aaf;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.8rem;
+    }
+    .nav-links a {
+      color: #ccd6f0;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .user-area {
+      background: rgba(30,35,45,0.7);
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.85rem;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      margin: 1.5rem 0 2rem;
+    }
+    .badge {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px);
+      display: inline-block;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .hero h2 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #f0f2f5, #9bb8da);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero p {
+      color: #b9c7dd;
+      max-width: 650px;
+      margin: 1rem auto;
+    }
+
+    /* Plan cards */
+    .plans {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+    .plan-card {
+      background: rgba(12, 15, 24, 0.7);
+      backdrop-filter: blur(14px);
+      border-radius: 2rem;
+      border: 1px solid rgba(100,115,140,0.5);
+      padding: 1.8rem;
+      width: 280px;
+      transition: 0.2s;
+      text-align: center;
+    }
+    .plan-card.vip {
+      background: linear-gradient(145deg, rgba(25,30,45,0.85), rgba(15,18,30,0.9));
+      border-color: #c9a03d;
+      box-shadow: 0 0 18px rgba(201,160,61,0.2);
+    }
+    .plan-card h3 {
+      font-size: 1.7rem;
+      margin-bottom: 0.5rem;
+    }
+    .price {
+      font-size: 1.9rem;
+      font-weight: 800;
+      margin: 0.8rem 0;
+    }
+    .price small {
+      font-size: 0.8rem;
+    }
+    .features-list {
+      list-style: none;
+      margin: 1rem 0;
+      text-align: left;
+    }
+    .features-list li {
+      margin: 0.7rem 0;
+      font-size: 0.85rem;
+    }
+    .btn-plan {
+      background: #2c3e4e;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 2rem;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.8rem;
+    }
+    .vip .btn-plan {
+      background: #b8860b;
+    }
+
+    /* Deploy Zone */
+    .deploy-section {
+      background: rgba(8, 10, 18, 0.65);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      border: 1px solid rgba(90,105,125,0.5);
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .code-editor {
+      background: #0a0c12;
+      border-radius: 1.2rem;
+      border: 1px solid #2a3342;
+      overflow: hidden;
+    }
+    .editor-header {
+      background: #141822;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      border-bottom: 1px solid #2a3342;
+    }
+    textarea {
+      width: 100%;
+      background: #0a0c12;
+      border: none;
+      color: #e2e8f0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.85rem;
+      padding: 1rem;
+      min-height: 280px;
+      resize: vertical;
+      outline: none;
+    }
+    .deploy-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-deploy {
+      background: linear-gradient(95deg, #1f8a4c, #0f6e3a);
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 2rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+    }
+    .preview-link {
+      background: #2d3748;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+    }
+    .storage-info {
+      font-size: 0.8rem;
+      background: #00000055;
+      padding: 0.5rem 1rem;
+      border-radius: 1.5rem;
+    }
+
+    /* deployed sites list */
+    .deployed-list {
+      margin-top: 2rem;
+    }
+    .site-item {
+      background: rgba(0,0,0,0.5);
+      border-radius: 1.2rem;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.7rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .site-url {
+      font-family: monospace;
+      color: #7eef9e;
+    }
+    .badge-plan {
+      font-size: 0.7rem;
+      background: #2c3e4e;
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 0 1rem;
+      border-top: 1px solid #2a3342;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+    }
+    @media (max-width: 750px) {
+      .container { padding: 1rem; }
+      .navbar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="gradient-overlay"></div>
+
+<div class="container">
+  <nav class="navbar">
+    <div class="logo">
+      <h1>⚡ BESTPLOY <i class="fas fa-cubes"></i></h1>
+      <span>GPU Core | Bandwidth illimité | 1GB Free</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" id="navFree"><i class="fas fa-gem"></i> Free</a>
+      <a href="#" id="navVip"><i class="fas fa-crown"></i> VIP</a>
+      <a href="#"><i class="fab fa-github"></i> Docs</a>
+    </div>
+    <div class="user-area" id="userPlanDisplay">
+      <i class="fas fa-user-astronaut"></i> Plan: <strong id="currentPlanLabel">FREE</strong>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="badge"><i class="fas fa-microchip"></i> GPU ACCELERATION & INFINITE BANDWIDTH FOR TESTS</div>
+    <h2>Deploy HTML, CSS, JavaScript <br> en 1 clic — 1GB Free + VIP Illimité</h2>
+    <p>Bestploy bay mounn haïtien espace pou teste, GPU core, bandwidth san limit. Mete 1GB free, tout free, e VIP pou plis pousa.</p>
+  </div>
+
+  <!-- Plans : Free + VIP -->
+  <div class="plans">
+    <div class="plan-card" id="freePlanCard">
+      <h3><i class="fas fa-cloud"></i> FREE</h3>
+      <div class="price">0 <small>USD / à vi</small></div>
+      <ul class="features-list">
+        <li><i class="fas fa-check-circle"></i> 1 GB Stockage</li>
+        <li><i class="fas fa-tachometer-alt"></i> Bandwidth illimité (test)</li>
+        <li><i class="fas fa-chart-line"></i> GPU Core light accès</li>
+        <li><i class="fas fa-code"></i> Déployer HTML/JS illimité</li>
+        <li><i class="fas fa-link"></i> 3 projets actifs</li>
+      </ul>
+      <button class="btn-plan select-plan" data-plan="free">Activer Free</button>
+    </div>
+    <div class="plan-card vip" id="vipPlanCard">
+      <h3><i class="fas fa-crown"></i> VIP · BESTPLOY PRO</h3>
+      <div class="price">Gratuit <small>(beta community)</small></div>
+      <ul class="features-list">
+        <li><i class="fas fa-infinity"></i> Stockage illimité (10GB+ test)</li>
+        <li><i class="fas fa-microchip"></i> GPU Core illimité + accélération</li>
+        <li><i class="fas fa-globe"></i> Bandwidth ∞ + CDN edge</li>
+        <li><i class="fas fa-rocket"></i> Déploiement instantané illimité</li>
+        <li><i class="fas fa-star"></i> Sous-domaine personnalisé .bestploy.app</li>
+        <li><i class="fas fa-headset"></i> Support prioritaire commu haïtienne</li>
+      </ul>
+      <button class="btn-plan select-plan" data-plan="vip">Passer VIP (gratis)</button>
+    </div>
+  </div>
+
+  <!-- Deploy Zone -->
+  <div class="deploy-section">
+    <div class="section-title">
+      <i class="fas fa-terminal"></i> Zone de Déploiement
+      <span class="storage-info"><i class="fas fa-database"></i> Espace utilisé: <span id="usedSpace">0</span> MB / <span id="totalSpace">1024</span> MB</span>
+    </div>
+    <div class="code-editor">
+      <div class="editor-header"><i class="fab fa-html5"></i> index.html (HTML / JS)</div>
+      <textarea id="codeArea" placeholder="Écris ton HTML, CSS, JavaScript ici... Exemple: &#60;h1>Bestploy pou tout moun&#60;/h1>&#60;script>alert('Deployé!')&#60;/script>">&#60;!DOCTYPE html&#62;
+&#60;html&#62;
+&#60;head&#62;&#60;title&#62;Mon site Bestploy&#60;/title&#62;&#60;style&#62;body{background:linear-gradient(135deg,#0a0f1a,#1a1f2e);color:white;font-family:sans-serif;text-align:center;padding:3rem;}&#60;/style&#62;&#60;/head&#62;
+&#60;body&#62;
+&#60;h1&#62;🇭🇹 Sa se yon sit deplove sou Bestploy!&#60;/h1&#62;
+&#60;p&#62;GPU core + bandwidth illimité pou tout moun.&#60;/p&#62;
+&#60;button onclick="alert('Mèsi Bestploy!')"&#62;Test&#60;/button&#62;
+&#60;/body&#62;
+&#60;/html&#62;</textarea>
+    </div>
+    <div class="deploy-actions">
+      <button id="deployBtn" class="btn-deploy"><i class="fas fa-rocket"></i> Déployer maintenant</button>
+      <div class="preview-link" id="previewInfo">⛅ Aucun site deployé</div>
+    </div>
+  </div>
+
+  <!-- Mes sites déployés -->
+  <div class="deployed-list">
+    <div class="section-title" style="font-size:1.2rem"><i class="fas fa-folder-open"></i> Vos déploiements actifs</div>
+    <div id="sitesListContainer">
+      <div class="site-item"><i class="fas fa-info-circle"></i> Aucun site déployé encore. Cliquez sur Déployer!</div>
+    </div>
+  </div>
+  <footer>
+    <i class="fas fa-heart"></i> Bestploy — Powered by fake tech for haitian community. GPU Core, Liquid Glass UI, Bandwidth illimité & 1GB Free. VIP offert a tout moun ki bezwen.
+  </footer>
+</div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+    }
+  }
+</script>
+<script type="module">
+  import * as THREE from 'three';
+  // 3D Background - Neo liquid glass
+  const canvas = document.getElementById('bg-canvas');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x030308);
+  scene.fog = new THREE.FogExp2(0x030308, 0.003);
+  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 1.2, 11);
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: false });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  
+  const ambient = new THREE.AmbientLight(0x222233);
+  scene.add(ambient);
+  const light1 = new THREE.PointLight(0x6688aa, 1.0);
+  light1.position.set(2, 3, 4);
+  scene.add(light1);
+  const light2 = new THREE.PointLight(0xaa8866, 0.6);
+  light2.position.set(-2, 1, 5);
+  scene.add(light2);
+  
+  const torusKnot = new THREE.Mesh(
+    new THREE.TorusKnotGeometry(1.1, 0.28, 180, 24, 3, 4),
+    new THREE.MeshStandardMaterial({ color: 0x557799, metalness: 0.7, roughness: 0.3, emissive: 0x112233, emissiveIntensity: 0.4 })
+  );
+  scene.add(torusKnot);
+  
+  const particlesGeo = new THREE.BufferGeometry();
+  const particleCount = 1600;
+  const posArray = new Float32Array(particleCount * 3);
+  for(let i=0; i<particleCount; i++) {
+    posArray[i*3] = (Math.random() - 0.5) * 70;
+    posArray[i*3+1] = (Math.random() - 0.5) * 45;
+    posArray[i*3+2] = (Math.random() - 0.5) * 50 - 20;
+  }
+  particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  const particlesMat = new THREE.PointsMaterial({ color: 0x88aacc, size: 0.06, transparent: true, blending: THREE.AdditiveBlending });
+  const stars = new THREE.Points(particlesGeo, particlesMat);
+  scene.add(stars);
+  
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.04, 64, 300), new THREE.MeshStandardMaterial({ color: 0x7c9ec0, emissive: 0x1e2f3c }));
+  scene.add(ring);
+  
+  let time = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    time += 0.008;
+    torusKnot.rotation.x = time * 0.4;
+    torusKnot.rotation.y = time * 0.7;
+    ring.rotation.z = time * 0.3;
+    ring.rotation.x = Math.sin(time * 0.2) * 0.2;
+    stars.rotation.y = time * 0.02;
+    camera.position.x += (0 - camera.position.x) * 0.02;
+    camera.lookAt(0, 0.5, 0);
+    renderer.render(scene, camera);
+  }
+  animate();
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+
+<script>
+  // ---------- Gestion Stockage Local (simulation 1GB free / VIP illimité) ----------
+  let currentPlan = localStorage.getItem('bestploy_plan') || 'free'; // free or vip
+  let deployedSites = JSON.parse(localStorage.getItem('bestploy_sites')) || [];
+  const MAX_FREE_STORAGE_MB = 1024; // 1GB
+  // For VIP we simulate "illimité" but we allow huge but we cap 100MB for demo but text says illimité
+  function getTotalStorageLimit() {
+    return currentPlan === 'vip' ? 10240 : MAX_FREE_STORAGE_MB; // VIP 10GB effectively "illimité" for demo
+  }
+  
+  function updateUIStorage() {
+    let totalUsed = 0;
+    deployedSites.forEach(site => { totalUsed += site.size || 0; });
+    const limit = getTotalStorageLimit();
+    const percent = (totalUsed / limit) * 100;
+    document.getElementById('usedSpace').innerText = totalUsed.toFixed(1);
+    document.getElementById('totalSpace').innerText = limit;
+    const userLabel = document.getElementById('currentPlanLabel');
+    userLabel.innerText = currentPlan.toUpperCase();
+    if(currentPlan === 'vip') userLabel.style.color = '#f5b042';
+    else userLabel.style.color = '#8eaaef';
+  }
+  
+  function canDeploy(estimatedSizeKB) {
+    const used = deployedSites.reduce((acc, s) => acc + (s.size || 0), 0);
+    const limit = getTotalStorageLimit();
+    if(currentPlan === 'vip') return true; // illimité pour VIP
+    return (used + estimatedSizeKB) <= limit;
+  }
+  
+  function deploySite(htmlContent) {
+    const sizeBytes = new Blob([htmlContent]).size;
+    const sizeKB = sizeBytes / 1024;
+    if(!canDeploy(sizeKB)) {
+      alert(`Espace insuffisant! Votre plan ${currentPlan.toUpperCase()} a ${getTotalStorageLimit()}MB. Supprimez des anciens sites ou passez VIP (gratuit).`);
+      return false;
+    }
+    const siteId = Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+    const siteName = `site-${deployedSites.length+1}`;
+    const fakeUrl = `https://${siteId}.bestploy.app`; // simulation
+    const newSite = {
+      id: siteId,
+      name: siteName,
+      url: fakeUrl,
+      html: htmlContent,
+      size: sizeKB,
+      createdAt: new Date().toISOString()
+    };
+    deployedSites.unshift(newSite);
+    localStorage.setItem('bestploy_sites', JSON.stringify(deployedSites));
+    updateUIStorage();
+    renderSitesList();
+    return true;
+  }
+  
+  function deleteSite(id) {
+    deployedSites = deployedSites.filter(s => s.id !== id);
+    localStorage.setItem('bestploy_sites', JSON.stringify(deployedSites));
+    updateUIStorage();
+    renderSitesList();
+  }
+  
+  function previewSite(htmlContent) {
+    const blob = new Blob([htmlContent], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  
+  function renderSitesList() {
+    const container = document.getElementById('sitesListContainer');
+    if(!deployedSites.length) {
+      container.innerHTML = `<div class="site-item"><i class="fas fa-globe"></i> Aucun site déployé. Créez votre premier site !</div>`;
+      return;
+    }
+    container.innerHTML = deployedSites.map(site => `
+      <div class="site-item">
+        <div><i class="fas fa-code-branch"></i> <strong>${site.name}</strong> <span class="badge-plan">${currentPlan === 'vip' ? 'VIP' : 'FREE'}</span><br>
+        <span class="site-url">🔗 ${site.url}</span> <span style="font-size:0.7rem;">${site.size.toFixed(1)} KB</span></div>
+        <div style="display:flex; gap:8px;">
+          <button class="preview-btn" data-id="${site.id}" data-html="${encodeURIComponent(site.html)}" style="background:#2c3e66; border:none;padding:5px 12px;border-radius:30px;color:white;"><i class="fas fa-eye"></i> Preview</button>
+          <button class="delete-btn" data-id="${site.id}" style="background:#5a2e3e; border:none;padding:5px 12px;border-radius:30px;color:white;"><i class="fas fa-trash"></i> Suppr</button>
+        </div>
+      </div>
+    `).join('');
+    document.querySelectorAll('.preview-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const htmlDecode = decodeURIComponent(btn.getAttribute('data-html'));
+        previewSite(htmlDecode);
+      });
+    });
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = btn.getAttribute('data-id');
+        deleteSite(id);
+      });
+    });
+  }
+  
+  // Changer de plan (free/vip)
+  function setPlan(plan) {
+    if(plan !== 'free' && plan !== 'vip') return;
+    currentPlan = plan;
+    localStorage.setItem('bestploy_plan', plan);
+    updateUIStorage();
+    renderSitesList();
+    alert(`Plan changé pour ${plan.toUpperCase()} ! ${plan === 'vip' ? 'Vous avez GPU illimité, bande passante infinie + stockage XXL. Fè lajwa!' : 'Plan free: 1GB storage, déploiement gratuit.'}`);
+  }
+  
+  // event listeners plans
+  document.querySelectorAll('.select-plan').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const planType = btn.getAttribute('data-plan');
+      setPlan(planType);
+    });
+  });
+  
+  // Deploy from textarea
+  document.getElementById('deployBtn').addEventListener('click', () => {
+    const code = document.getElementById('codeArea').value;
+    if(!code.trim()) {
+      alert('Antre kòd HTML ou anvan deplwaye.');
+      return;
+    }
+    const success = deploySite(code);
+    if(success) {
+      document.getElementById('previewInfo').innerHTML = `<i class="fas fa-check-circle"></i> Site deployé avec succès! Voir liste ci-dessous.`;
+      setTimeout(() => { document.getElementById('previewInfo').innerHTML = `✨ Prêt pour nouveau déploiement`; }, 3000);
+    } else {
+      document.getElementById('previewInfo').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Échec: espace insuffisant ou erreur`;
+    }
+  });
+  
+  // initial refresh
+  updateUIStorage();
+  renderSitesList();
+  // example initial demo deploy if no sites
+  if(deployedSites.length === 0) {
+    const demoHtml = `<!DOCTYPE html><html><head><title>Demo Bestploy</title><style>body{background:#0a0f1f;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;}</style></head><body><h1>🇭🇹 Bienvenue sou Bestploy! <br> Deplway gratis ak GPU core + bandwith illimité.</h1></body></html>`;
+    deploySite(demoHtml);
+  }
+  // add nav plan indicators
+  document.getElementById('navFree').addEventListener('click', (e) => { e.preventDefault(); setPlan('free'); });
+  document.getElementById('navVip').addEventListener('click', (e) => { e.preventDefault(); setPlan('vip'); });
+</script>
+</body>
+</html>
+```
