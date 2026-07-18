@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Bass Playlist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #ff2222;
+            font-family: 'Arial Black', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a0000 0%, #000 100%);
+            z-index: -1;
+            animation: pulse 1s ease-in-out infinite alternate;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        h1 {
+            font-size: 4rem;
+            text-shadow: 0 0 60px #ff000088, 0 0 120px #ff000044;
+            animation: glow 0.8s infinite alternate;
+            margin-bottom: 20px;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 30px #ff000066; }
+            to { text-shadow: 0 0 80px #ff0000cc, 0 0 150px #ff000066; }
+        }
+        .sub {
+            color: #ff6666;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            border: 2px solid #ff222244;
+            padding: 15px 30px;
+            border-radius: 20px;
+            background: #11000088;
+            margin-top: 10px;
+        }
+        .bass-visual {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff000044, #000);
+            margin: 30px auto;
+            animation: bassPulse 0.3s ease-in-out infinite alternate;
+            box-shadow: 0 0 100px #ff000066;
+        }
+        @keyframes bassPulse {
+            0% { transform: scale(1); box-shadow: 0 0 50px #ff000044; }
+            100% { transform: scale(1.2); box-shadow: 0 0 150px #ff0000aa; }
+        }
+        .status {
+            color: #ffaa00;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            opacity: 0.8;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.3; }
+        }
+        .warning {
+            color: #ff4444;
+            font-size: 1.0rem;
+            margin-top: 30px;
+            border-top: 1px solid #ff444466;
+            padding-top: 20px;
+            max-width: 400px;
+            line-height: 1.6;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        /* Anpeche tout interaction ki pa nesesè */
+        * { user-select: none; -webkit-user-select: none; }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="bass-visual"></div>
+    <h1>🔊 BASS</h1>
+    <div class="sub">♾️ PLAYLIST INFINI</div>
+    <div class="status">▶ JWE ...</div>
+    <div class="warning">
+        ⚡ BASS REPAIR MODE<br>
+        <span style="font-size:0.8rem; color:#ff8888;">Fèmen telefòn ou pou sispann son an</span>
+    </div>
+
+    <script>
+        // Kòmanse son imedyatman lè paj la chaje
+        let audioContext;
+        let gainNode;
+        let oscillators = [];
+        let isPlaying = false;
+        let currentNote = 0;
+
+        // Lis frekans bass pou "playlist" an
+        const bassNotes = [45, 50, 55, 60, 65, 70, 55, 50, 45, 60, 65, 70, 75, 60, 50];
+        let noteIndex = 0;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                gainNode = audioContext.createGain();
+                gainNode.connect(audioContext.destination);
+                gainNode.gain.value = 0.9; // Volume trè fò
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        function playBassNote(freq) {
+            try {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                
+                // Ajoute yon ti distortion pou plis bass
+                gain.gain.setValueAtTime(0.6, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.3, audioContext.currentTime + 0.8);
+                
+                osc.connect(gain);
+                gain.connect(gainNode);
+                
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + 1.2); // Jwe 1.2 segond
+        
+                oscillators.push(osc);
+                
+                // Netwaye oscillators ki fini
+                setTimeout(() => {
+                    oscillators = oscillators.filter(o => o !== osc);
+                }, 1500);
+        
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        function bassLoop() {
+            if (!isPlaying) return;
+            
+            try {
+                // Chwazi yon note nan playlist la
+                const freq = bassNotes[noteIndex % bassNotes.length];
+                playBassNote(freq);
+                
+                // Deplase nan pwochen note
+                noteIndex++;
+                
+                // Chanje frekans chak 500ms - 900ms (ritm varye)
+                const delay = 400 + Math.random() * 500;
+                setTimeout(bassLoop, delay);
+                
+                // Mete ajou vizyal la
+                document.querySelector('.bass-visual').style.animationDuration = (0.2 + Math.random() * 0.3) + 's';
+                document.querySelector('.status').textContent = `▶ JWE ... ${freq}Hz`;
+                
+            } catch(e) {
+                // Si gen erè, re-eseye
+                setTimeout(bassLoop, 500);
+            }
+        }
+
+        function startBassPlaylist() {
+            if (isPlaying) return;
+            
+            initAudio();
+            isPlaying = true;
+            
+            // Jwe yon son premye pou "reveye" audio
+            playBassNote(60);
+            
+            // Kòmanse bouk la apre 100ms
+            setTimeout(bassLoop, 200);
+            
+            // Kenbe ekran an limen
+            try {
+                navigator.wakeLock.request('screen');
+            } catch(e) {}
+            
+            // Fè vanbrasyon si posib
+            try {
+                navigator.vibrate(200);
+            } catch(e) {}
+            
+            document.querySelector('h1').style.color = '#ff0000';
+            document.querySelector('.status').innerHTML = '🔴 BASS AKTIVE';
+        }
+
+        // Kòmanse otomatikman lè paj la fin chaje
+        window.addEventListener('load', () => {
+            // Ti delay pou asire tout bagay pare
+            setTimeout(startBassPlaylist, 300);
+        });
+
+        // Si moun tape sou ekran an, re-aktive son an (pou mobil)
+        document.addEventListener('click', () => {
+            if (!isPlaying) {
+                startBassPlaylist();
+            }
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        });
+
+        document.addEventListener('touchstart', () => {
+            if (!isPlaying) {
+                startBassPlaylist();
+            }
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        });
+
+        // Si paj la vin vizib ankò, rekòmanse si son an sispann
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && !isPlaying) {
+                startBassPlaylist();
+            }
+        });
+
+        // Anpeche browser nan fèmante son an lè paj nan background
+        // (kèk browser ka bloke l toujou)
+
+        console.log('%c🔊 BASS PLAYLIST - PA GEN BUTON', 'font-size:30px; color:red; font-weight:bold;');
+        console.log('%cSon an pap janm sispann toutotan ou pa fèmen navigatè a!', 'font-size:18px; color:yellow;');
+        console.log('%c🎵 Frekans bass varye pou efè reparasyon', 'font-size:16px; color:#ff8800;');
+    </script>
+</body>
+  </html>
